@@ -11,6 +11,7 @@ import (
 	"github.com/dvwallin/ago/config"
 	"github.com/dvwallin/ago/post"
 	"github.com/dvwallin/ago/transpiler"
+	"github.com/dvwallin/ago/util"
 )
 
 var (
@@ -29,12 +30,6 @@ func init() {
 }
 
 func main() {
-
-	files := post.GetFiles()
-	for _, file := range files {
-		fmt.Println(file.Name())
-	}
-
 	if len(*postFlag) > 3 {
 		var (
 			formatedDate          = time.Now().Format("2006-01-02 15:04:05 Monday")
@@ -51,6 +46,10 @@ func main() {
 		os.Exit(0)
 	}
 	if *transpileFlag {
+		if !util.FolderExists(config.GetFolders().PostsFolder) {
+			fmt.Println("please create a post first by using 'ago -post <you-title-here>'")
+			os.Exit(1)
+		}
 		transpiler.Run()
 		os.Exit(0)
 	}
