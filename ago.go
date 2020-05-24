@@ -6,16 +6,29 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"path/filepath"
+	"time"
 
 	"github.com/davecgh/go-spew/spew"
-	"github.com/dvwallin/ago/layout"
+	"github.com/dvwallin/ago/post"
 	"github.com/dvwallin/ago/types"
+	"github.com/dvwallin/ago/util"
 	"github.com/kkyr/fig"
 )
 
 var (
+	// Arg flags
 	initFlag = flag.Bool("init", false, "run in a new folder to create a new Ago Blog!")
-	cfg      types.Config
+	postFlag = flag.Bool("post", false, "used to create a new post")
+	helpFlag = flag.Bool("help", false, "show help section")
+
+	// config options
+	postsFolder         = filepath.Join(".", "posts")
+	runtimeDate         = time.Now().Format("2006-01-02_15:04:05")
+	formatedDate        = time.Now().Format("2006-01-02 15:04:05 Monday")
+	newPostName         = fmt.Sprintf("%s-new-post.md", runtimeDate)
+	newAbsolutePostPath = filepath.Join(postsFolder, newPostName)
+	cfg                 types.Config
 )
 
 func init() {
@@ -23,7 +36,7 @@ func init() {
 	err := fig.Load(&cfg)
 	if err != nil {
 		if *initFlag {
-			if !fileExists("config.yaml") {
+			if !util.FileExists("config.yaml") {
 				var defaultConfig string = `domain: "ago.ofnir.xyz"
 author: "Joane Doe"
 email: "joane.doe@ago.ofnir.xyz"
@@ -48,27 +61,20 @@ keywords: "ago,blog,awesome"`
 
 func main() {
 	spew.Dump(cfg)
-	var ph types.Placeholders = types.Placeholders{
-		types.Placeholder{
-			Tag:   "[[TITLE]]",
-			Value: "HEJHEJ",
-		},
-		types.Placeholder{
-			Tag:   "[[DESCRIPTION]]",
-			Value: "This is a desc",
-		},
-		types.Placeholder{
-			Tag:   "[[KEYWORDS]]",
-			Value: "apa,banan,cyckel",
-		},
+	fmt.Println(newPostName)
+	if *postFlag {
+		post.Create(postsFolder, formatedDate, newAbsolutePostPath)
+		os.Exit(0)
 	}
-	layout.GenerateHeader(ph)
-}
+	if *helpFlag {
+		fmt.Println("~~~~~")
+		fmt.Println("this is Ago Blog, a lightweight tool to generate static html blogs.")
+		fmt.Println("use -init in a new folder to create a new blog")
+		fmt.Println("use -post to create a new blog post template to edit")
+		fmt.Println("use -help to show this section")
+		fmt.Println("~~~~~")
+		os.Exit(0)
+	}
 
-func fileExists(filename string) bool {
-	info, err := os.Stat(filename)
-	if os.IsNotExist(err) {
-		return false
-	}
-	return !info.IsDir()
+	// layout.GenerateHeader(ph)
 }

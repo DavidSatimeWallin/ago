@@ -10,7 +10,13 @@ import (
 
 // GenerateHeader gives back the parsed header
 func GenerateHeader(ph types.Placeholders) {
-	fmt.Println(parse(html.Header, ph))
+	output := parse(html.Header, ph)
+	// If github_account != empty == fill GITHUB_LINK with nav
+	// <nav>
+	//     <a href="https://github.com/[[GITHUB_ACCOUNT]]">My Github</a>
+	// </nav>
+	fmt.Println(output)
+
 }
 
 func parse(input string, ph types.Placeholders) string {
