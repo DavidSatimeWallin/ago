@@ -10,6 +10,8 @@ const Header = `<!DOCTYPE html>
     <meta name="description" content="[[DESCRIPTION]]">
     <meta name="keywords" content="[[TAGS]]">
     <link rel="stylesheet" href="/ago.css">
+    <link rel="alternate" type="application/rss+xml" title="RSS Feed for [[DOMAIN]]" href="[[PROTOCOL]]://[[DOMAIN]]/ago.rss" />
+    <link rel="alternate" type="application/atom+xml" title="Atom Feed for [[DOMAIN]]" href="[[PROTOCOL]]://[[DOMAIN]]/ago.atom" />
   </head>
   <body>
     <header>
@@ -18,9 +20,13 @@ const Header = `<!DOCTYPE html>
           <em>[[INTRO]]</em>
         </p>
         <hr />
-        <p>
-          <a href="[[PROTOCOL]]://[[DOMAIN]]/all_entries.html">View all entries</a>
-        </p>
+        <nav>
+          <ul>
+            <li><a href="[[PROTOCOL]]://[[DOMAIN]]/all_entries.html">View all entries</a></li>
+            <li><a href="[[PROTOCOL]]://[[DOMAIN]]/ago.atom">Atom feed</a></li>
+            <li><a href="[[PROTOCOL]]://[[DOMAIN]]/ago.rss">RSS feed</a></li>
+          </ul>
+        </nav>
         <hr />
     </header>`
 
