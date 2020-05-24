@@ -82,8 +82,8 @@ func GetExcerpt(file string) string {
 	fileContentSlice := strings.Split(ReadMDFile(file), ";;;;;;;")
 	content := stripmd.Strip(fileContentSlice[1])
 
-	if len(content) > 150 {
-		content = content[0:150]
+	if len(content) > 200 {
+		content = content[0:200]
 	}
 
 	return strings.Replace(content, "\n", " ", -1)
