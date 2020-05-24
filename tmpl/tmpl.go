@@ -33,7 +33,7 @@ const Header = `<!DOCTYPE html>
 // Footer contains the ending of the html
 const Footer = `
 		<footer>
-			generated with the <a href="https://ago.ofnir.xyz">ago blog</a> script
+			generated with the <a href="https://ago.ofnir.xyz">ago blog</a> script. source code located at <a href="https://github.com/dvwallin/ago">GitHub</a>.
 		</footer>
 	</body>
 </html>
