@@ -83,7 +83,7 @@ func GetExcerpt(file string) string {
 	content := stripmd.Strip(fileContentSlice[1])
 
 	if len(content) > 200 {
-		content = content[0:200]
+		content = fmt.Sprintf("%s...", content[0:200])
 	}
 
 	return strings.Replace(content, "\n", " ", -1)
