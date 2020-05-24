@@ -1,0 +1,9 @@
+Project:
+    ✔ accept arguments @done(20-05-24 10:01)
+    ✔ config file parsing @done(20-05-24 10:01)
+    ✔ create posts @done(20-05-24 10:01)
+    ✔ list posts @done(20-05-24 10:01)
+    ☐ transpile posts to html
+    ☐ publish posts
+    ☐ create index page
+    ☐ create keywords pages

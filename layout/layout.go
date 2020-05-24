@@ -2,26 +2,42 @@ package layout
 
 import (
 	"fmt"
+	"reflect"
 	"strings"
 
-	"github.com/dvwallin/ago/html"
-	"github.com/dvwallin/ago/types"
+	"github.com/dvwallin/ago/agotypes"
+	"github.com/dvwallin/ago/config"
+	"github.com/dvwallin/ago/tmpl"
 )
 
 // GenerateHeader gives back the parsed header
-func GenerateHeader(ph types.Placeholders) {
-	output := parse(html.Header, ph)
-	// If github_account != empty == fill GITHUB_LINK with nav
-	// <nav>
-	//     <a href="https://github.com/[[GITHUB_ACCOUNT]]">My Github</a>
-	// </nav>
-	fmt.Println(output)
-
+func GenerateHeader() string {
+	cfg := config.GetCfg()
+	output := parse(tmpl.Header, cfg)
+	return output
 }
 
-func parse(input string, ph types.Placeholders) string {
-	for _, v := range ph {
-		input = strings.ReplaceAll(input, v.Tag, v.Value)
+// GenerateFooter gives back the parsed header
+func GenerateFooter() string {
+	cfg := config.GetCfg()
+	output := parse(tmpl.Footer, cfg)
+	return output
+}
+
+func parse(input string, cfg agotypes.Config) string {
+	v := reflect.ValueOf(cfg)
+	typeOfS := v.Type()
+
+	for i := 0; i < v.NumField(); i++ {
+		input = strings.ReplaceAll(
+			input,
+			fmt.Sprintf(
+				"[[%s]]",
+				strings.ToUpper(typeOfS.Field(i).Name),
+			),
+			v.Field(i).Interface().(string),
+		)
 	}
+
 	return input
 }
