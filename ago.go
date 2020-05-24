@@ -11,7 +11,6 @@ import (
 	"github.com/dvwallin/ago/config"
 	"github.com/dvwallin/ago/post"
 	"github.com/dvwallin/ago/transpiler"
-	"github.com/dvwallin/ago/util"
 )
 
 var (
@@ -20,20 +19,19 @@ var (
 	transpileFlag = flag.Bool("transpile", false, "transpiles the markdown files into html")
 	postFlag      = flag.String("post", "", "used to create a new post")
 	helpFlag      = flag.Bool("help", false, "show help section")
-
-	runtimeUnix = time.Now().Unix()
 )
 
 func init() {
 	flag.Parse()
 	config.VerifyConfig(initFlag)
+	config.InitFolders()
 }
 
 func main() {
 	if len(*postFlag) > 3 {
 		var (
 			formatedDate          = time.Now().Format("2006-01-02 15:04:05 Monday")
-			newPostName           = fmt.Sprintf("%d__%s.md", runtimeUnix, *postFlag)
+			newPostName           = fmt.Sprintf("%d__%s.md", time.Now().Unix(), *postFlag)
 			newAbsolutePostPath   = filepath.Join(config.GetFolders().PostsFolder, newPostName)
 			postnameIsValidFormat = regexp.MustCompile(`^[a-zA-Z0-9-.]+$`).MatchString
 		)
@@ -46,10 +44,6 @@ func main() {
 		os.Exit(0)
 	}
 	if *transpileFlag {
-		if !util.FolderExists(config.GetFolders().PostsFolder) {
-			fmt.Println("please create a post first by using 'ago -post <you-title-here>'")
-			os.Exit(1)
-		}
 		transpiler.Run()
 		os.Exit(0)
 	}

@@ -1,6 +1,7 @@
 package util
 
 import (
+	"fmt"
 	"os"
 	"os/exec"
 )
@@ -32,17 +33,19 @@ func OpenFileInEditor(filename string) error {
 	if editor == "" {
 		editor = DefaultEditor
 	}
-
-	// Get the full executable path for the editor.
 	executable, err := exec.LookPath(editor)
-	if err != nil {
-		return err
-	}
-
+	ErrIt(err, "")
 	cmd := exec.Command(executable, filename)
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
-
 	return cmd.Run()
+}
+
+// ErrIt is an ugly way of handling errors
+func ErrIt(err error, msg string) {
+	if err != nil {
+		fmt.Println(msg, err)
+		os.Exit(1)
+	}
 }

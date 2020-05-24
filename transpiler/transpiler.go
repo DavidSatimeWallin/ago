@@ -20,11 +20,6 @@ import (
 
 // Run - lets execute some transpiltaion shall we?
 func Run() {
-
-	if !util.FolderExists(config.GetFolders().EntriesFolder) {
-		os.MkdirAll(config.GetFolders().EntriesFolder, os.ModePerm)
-	}
-
 	m := minify.New()
 	m.AddFunc("text/html", html.Minify)
 
@@ -35,22 +30,16 @@ func Run() {
 	generateCSSFile()
 
 	s, err := m.String("text/html", fmt.Sprintf("%s%s%s", parsedHeader, body, tmpl.Footer))
-	if err != nil {
-		panic(err)
-	}
+	util.ErrIt(err, "")
 	if util.FileExists(indexfile) {
 		err := os.Remove(indexfile)
-		if err != nil {
-			fmt.Println(err)
-		}
+		util.ErrIt(err, "")
 	}
 	f, err := os.Create(indexfile)
 	defer f.Close()
 
 	_, err = f.WriteString(s)
-	if err != nil {
-		fmt.Println(err)
-	}
+	util.ErrIt(err, "")
 
 	files := post.GetFiles()
 	tags := make(map[string][]string)
@@ -67,17 +56,13 @@ func generateCSSFile() {
 	stylefile := filepath.Join(config.GetFolders().SiteFolder, "ago.css")
 	if util.FileExists(stylefile) {
 		err := os.Remove(stylefile)
-		if err != nil {
-			fmt.Println(err)
-		}
+		util.ErrIt(err, "")
 	}
 	f, err := os.Create(stylefile)
 	defer f.Close()
 
 	_, err = f.WriteString(tmpl.Style)
-	if err != nil {
-		fmt.Println(err)
-	}
+	util.ErrIt(err, "")
 }
 
 func posts(limit int) (bodyContent string) {
@@ -126,9 +111,7 @@ func writeSingleEntry(file os.FileInfo) {
 	filePath := filepath.Join(config.GetFolders().EntriesFolder, strings.Replace(file.Name(), ".md", ".html", -1))
 	if util.FileExists(filePath) {
 		err := os.Remove(filePath)
-		if err != nil {
-			fmt.Println(err)
-		}
+		util.ErrIt(err, "")
 	}
 	fileContentSlice := strings.Split(post.ReadMDFile(filepath.Join(config.GetFolders().PostsFolder, file.Name())), ";;;;;;;")
 	unsafe := blackfriday.Run([]byte(fileContentSlice[1]))
@@ -143,12 +126,11 @@ func writeSingleEntry(file os.FileInfo) {
 		layout.GenerateFooter(),
 	)
 	f, err := os.Create(filePath)
+	util.ErrIt(err, "")
 	defer f.Close()
 
 	_, err = f.WriteString(fileContent)
-	if err != nil {
-		fmt.Println(err)
-	}
+	util.ErrIt(err, "")
 }
 
 func buildTagIndex(tags map[string][]string, file os.FileInfo) map[string][]string {
@@ -163,17 +145,11 @@ func buildTagIndex(tags map[string][]string, file os.FileInfo) map[string][]stri
 }
 
 func writeTagFiles(tags map[string][]string) {
-	if !util.FolderExists(config.GetFolders().TagsFolder) {
-		os.MkdirAll(config.GetFolders().TagsFolder, os.ModePerm)
-	}
-
 	for tag, posts := range tags {
 		filePath := filepath.Join(config.GetFolders().TagsFolder, fmt.Sprintf("%s.html", tag))
 		if util.FileExists(filePath) {
 			err := os.Remove(filePath)
-			if err != nil {
-				fmt.Println(err)
-			}
+			util.ErrIt(err, "")
 		}
 		for i, p := range posts {
 			t := strings.Split(p, "__")
@@ -188,12 +164,11 @@ func writeTagFiles(tags map[string][]string) {
 			layout.GenerateFooter(),
 		)
 		f, err := os.Create(filePath)
+		util.ErrIt(err, "")
 		defer f.Close()
 
 		_, err = f.WriteString(fileContent)
-		if err != nil {
-			fmt.Println(err)
-		}
+		util.ErrIt(err, "")
 	}
 }
 

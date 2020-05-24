@@ -3,7 +3,6 @@ package config
 import (
 	"fmt"
 	"io/ioutil"
-	"log"
 	"os"
 
 	"github.com/dvwallin/ago/agotypes"
@@ -12,6 +11,20 @@ import (
 )
 
 var cfg agotypes.Config
+
+// InitFolders is for setting up needed folder-structure
+func InitFolders() {
+	createIfNotExists(GetFolders().PostsFolder)
+	createIfNotExists(GetFolders().EntriesFolder)
+	createIfNotExists(GetFolders().SiteFolder)
+	createIfNotExists(GetFolders().TagsFolder)
+}
+
+func createIfNotExists(folder string) {
+	if !util.FolderExists(folder) {
+		os.MkdirAll(folder, os.ModePerm)
+	}
+}
 
 // VerifyConfig verifies that we have a config file
 func VerifyConfig(initFlag *bool) {
@@ -28,15 +41,15 @@ description: "This is an awesome Ago Blog!"
 tags: "ago,blog,awesome"
 intro: "You should have a small intro here to describe a little bit about yourself and the purpose of the blog"`
 				err := ioutil.WriteFile("config.yaml", []byte(defaultConfig), 0644)
-				if err != nil {
-					log.Fatalln("could not create config.yaml")
-				}
+				util.ErrIt(err, "could not create config.yaml")
 				fmt.Println("congratulations to your new Ago Blog!")
 			} else {
-				log.Fatalln("config.yaml already exists")
+				fmt.Println("config.yaml already exists")
+				os.Exit(1)
 			}
 		} else {
-			log.Fatalln("can't find the config.yaml file! please run 'ago -init' to generate a new config.yaml.", err)
+			fmt.Println("can't find the config.yaml file! please run 'ago -init' to generate a new config.yaml.", err)
+			os.Exit(1)
 		}
 	}
 }
@@ -44,9 +57,6 @@ intro: "You should have a small intro here to describe a little bit about yourse
 // GetCfg gives us the config values
 func GetCfg() agotypes.Config {
 	err := fig.Load(&cfg)
-	if err != nil {
-		log.Println("could not load config")
-		os.Exit(1)
-	}
+	util.ErrIt(err, "could not load config")
 	return cfg
 }
