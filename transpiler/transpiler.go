@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/dvwallin/ago/config"
 	"github.com/dvwallin/ago/layout"
 	"github.com/dvwallin/ago/post"
@@ -53,8 +54,10 @@ func Run() {
 	}
 
 	files := post.GetFiles()
+	tags := make(map[string][]string)
 	for _, file := range files {
 		writeSingleEntry(file)
+		tags = buildTagIndex(tags, file)
 	}
 
 }
@@ -146,6 +149,15 @@ func writeSingleEntry(file os.FileInfo) {
 	if err != nil {
 		fmt.Println(err)
 	}
+}
+
+func buildTagIndex(tags map[string][]string, file os.FileInfo) map[string][]string {
+	fileContentSlice := strings.Split(post.ReadMDFile(filepath.Join(config.GetFolders().PostsFolder, file.Name())), ";;;;;;;")
+	headerSlice := strings.Split(fileContentSlice[0], "\n")
+
+	spew.Dump(headerSlice)
+	os.Exit(1)
+	return tags
 }
 
 func linkTags(tagString string) string {

@@ -3,7 +3,7 @@ Project:
     ✔ config file parsing @done(20-05-24 10:01)
     ✔ create posts @done(20-05-24 10:01)
     ✔ list posts @done(20-05-24 10:01)
-    ☐ transpile posts to html
-    ☐ publish posts
-    ☐ create index page
+    ✔ transpile posts to html @done(20-05-24 13:47)
+    ✘ publish posts @cancelled(20-05-24 13:49)
+    ✔ create index page @done(20-05-24 13:47)
     ☐ create keywords pages
