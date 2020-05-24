@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/dvwallin/ago/config"
+	"github.com/dvwallin/ago/feed"
 	"github.com/dvwallin/ago/layout"
 	"github.com/dvwallin/ago/post"
 	"github.com/microcosm-cc/bluemonday"
@@ -25,7 +26,7 @@ func Run() {
 
 	parsedHeader := layout.GenerateHeader()
 	indexfile := filepath.Join(config.GetFolders().SiteFolder, "index.html")
-	body := posts(5)
+	body := posts(10)
 
 	generateCSSFile()
 
@@ -41,6 +42,8 @@ func Run() {
 	_, err = f.WriteString(s)
 	util.ErrIt(err, "")
 
+	createAllEntriesPage()
+
 	files := post.GetFiles()
 	tags := make(map[string][]string)
 	for _, file := range files {
@@ -49,6 +52,32 @@ func Run() {
 	}
 
 	writeTagFiles(tags)
+
+	feed.GenerateFeeds()
+
+}
+
+func createAllEntriesPage() {
+	m := minify.New()
+	m.AddFunc("text/html", html.Minify)
+
+	parsedHeader := layout.GenerateHeader()
+	allEntriesFile := filepath.Join(config.GetFolders().SiteFolder, "all_entries.html")
+	body := posts(-1)
+
+	generateCSSFile()
+
+	s, err := m.String("text/html", fmt.Sprintf("%s%s%s", parsedHeader, body, tmpl.Footer))
+	util.ErrIt(err, "")
+	if util.FileExists(allEntriesFile) {
+		err := os.Remove(allEntriesFile)
+		util.ErrIt(err, "")
+	}
+	f, err := os.Create(allEntriesFile)
+	defer f.Close()
+
+	_, err = f.WriteString(s)
+	util.ErrIt(err, "")
 
 }
 
@@ -91,15 +120,17 @@ func posts(limit int) (bodyContent string) {
 }
 
 func generator(bodyContent string, file os.FileInfo, fullURL string) string {
-	fileContentSlice := strings.Split(post.ReadMDFile(filepath.Join(config.GetFolders().PostsFolder, file.Name())), ";;;;;;;")
+	filename := filepath.Join(config.GetFolders().PostsFolder, file.Name())
+	fileContentSlice := strings.Split(post.ReadMDFile(filename), ";;;;;;;")
 	headerSlice := strings.Split(fileContentSlice[0], "\n")
 	headerSlice[2] = linkTags(headerSlice[2])
 	content := fmt.Sprintf(
-		"<h2><a href='%sentries/%s.html'>%s</a></h2><small>%s</small><p>%s</p>",
+		"<h2><a href='%sentries/%s.html'>%s</a></h2><small>%s</small><p>%s</p><p>%s</p>",
 		fullURL,
 		strings.Replace(file.Name(), ".md", "", -1),
 		headerSlice[0],
 		headerSlice[1],
+		post.GetExcerpt(filename),
 		headerSlice[2],
 	)
 	unsafe := blackfriday.Run([]byte(content))

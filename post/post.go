@@ -10,6 +10,7 @@ import (
 
 	"github.com/dvwallin/ago/config"
 	"github.com/dvwallin/ago/util"
+	stripmd "github.com/writeas/go-strip-markdown"
 )
 
 // Create is used to generate a new empty post file
@@ -71,4 +72,19 @@ func GetFiles() []os.FileInfo {
 		returnFiles = append(returnFiles, m[k])
 	}
 	return returnFiles
+}
+
+// GetExcerpt returns the first 100 characters of a blog post
+func GetExcerpt(file string) string {
+	if !util.FileExists(file) {
+		return ""
+	}
+	fileContentSlice := strings.Split(ReadMDFile(file), ";;;;;;;")
+	content := stripmd.Strip(fileContentSlice[1])
+
+	if len(content) > 150 {
+		content = content[0:150]
+	}
+
+	return strings.Replace(content, "\n", " ", -1)
 }

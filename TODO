@@ -7,3 +7,6 @@ Project:
     ✘ publish posts @cancelled(20-05-24 13:49)
     ✔ create index page @done(20-05-24 13:47)
     ✔ create keywords pages @done(20-05-24 14:10)
+    ✔ add rss support @done(20-05-24 20:58)
+    ☐ add "all entries" -page
+    ✔ make startpage have 10 entries by default @done(20-05-24 20:58)

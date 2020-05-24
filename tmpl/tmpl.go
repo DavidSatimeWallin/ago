@@ -17,6 +17,11 @@ const Header = `<!DOCTYPE html>
         <p>
           <em>[[INTRO]]</em>
         </p>
+        <hr />
+        <p>
+          <a href="[[PROTOCOL]]://[[DOMAIN]]/all_entries.html">View all entries</a>
+        </p>
+        <hr />
     </header>`
 
 // Footer contains the ending of the html
