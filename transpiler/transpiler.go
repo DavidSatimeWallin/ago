@@ -6,7 +6,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/dvwallin/ago/config"
 	"github.com/dvwallin/ago/layout"
 	"github.com/dvwallin/ago/post"
@@ -59,6 +58,8 @@ func Run() {
 		writeSingleEntry(file)
 		tags = buildTagIndex(tags, file)
 	}
+
+	writeTagFiles(tags)
 
 }
 
@@ -152,12 +153,49 @@ func writeSingleEntry(file os.FileInfo) {
 }
 
 func buildTagIndex(tags map[string][]string, file os.FileInfo) map[string][]string {
+	cfg := config.GetCfg()
 	fileContentSlice := strings.Split(post.ReadMDFile(filepath.Join(config.GetFolders().PostsFolder, file.Name())), ";;;;;;;")
 	headerSlice := strings.Split(fileContentSlice[0], "\n")
-
-	spew.Dump(headerSlice)
-	os.Exit(1)
+	tagSlice := strings.Split(strings.Replace(strings.Replace(headerSlice[2], " ", "", -1), "Keywords:", "", -1), ",")
+	for _, tag := range tagSlice {
+		tags[tag] = append(tags[tag], fmt.Sprintf("%s://%s/entries/%s", cfg.Protocol, cfg.Domain, strings.Replace(file.Name(), ".md", ".html", -1)))
+	}
 	return tags
+}
+
+func writeTagFiles(tags map[string][]string) {
+	if !util.FolderExists(config.GetFolders().TagsFolder) {
+		os.MkdirAll(config.GetFolders().TagsFolder, os.ModePerm)
+	}
+
+	for tag, posts := range tags {
+		filePath := filepath.Join(config.GetFolders().TagsFolder, fmt.Sprintf("%s.html", tag))
+		if util.FileExists(filePath) {
+			err := os.Remove(filePath)
+			if err != nil {
+				fmt.Println(err)
+			}
+		}
+		for i, p := range posts {
+			t := strings.Split(p, "__")
+			title := strings.Title(strings.Replace(strings.Replace(t[1], ".html", "", -1), "-", " ", -1))
+			posts[i] = fmt.Sprintf("<li><a href='%s'>%s</a></li>", p, title)
+		}
+		unsafe := blackfriday.Run([]byte(fmt.Sprintf("<ul>%s</ul>", strings.Join(posts, ""))))
+		fileContent := fmt.Sprintf(
+			"%s%s%s",
+			layout.GenerateHeader(),
+			bluemonday.UGCPolicy().SanitizeBytes(unsafe),
+			layout.GenerateFooter(),
+		)
+		f, err := os.Create(filePath)
+		defer f.Close()
+
+		_, err = f.WriteString(fileContent)
+		if err != nil {
+			fmt.Println(err)
+		}
+	}
 }
 
 func linkTags(tagString string) string {

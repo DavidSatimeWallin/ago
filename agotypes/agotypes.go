@@ -27,5 +27,6 @@ type (
 		PostsFolder   string
 		SiteFolder    string
 		EntriesFolder string
+		TagsFolder    string
 	}
 )

@@ -13,6 +13,7 @@ func GetFolders() agotypes.Hard {
 		PostsFolder:   filepath.Join(".", "posts"),
 		SiteFolder:    filepath.Join(".", "site"),
 		EntriesFolder: filepath.Join(".", "site", "entries"),
+		TagsFolder:    filepath.Join(".", "site", "tags"),
 	}
 }
 
