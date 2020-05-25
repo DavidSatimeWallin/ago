@@ -24,6 +24,13 @@ func FolderExists(foldername string) bool {
 	return info.IsDir()
 }
 
+func DelFileIfExists(file string) {
+	if FileExists(file) {
+		err := os.Remove(file)
+		ErrIt(err, "")
+	}
+}
+
 // DefaultEditor will be vim cause that's what real adults use
 const DefaultEditor = "vim"
 
@@ -48,4 +55,12 @@ func ErrIt(err error, msg string) {
 		fmt.Println(msg, err)
 		os.Exit(1)
 	}
+}
+
+func GenerateFile(file string, content string) {
+	DelFileIfExists(file)
+	f, err := os.Create(file)
+	defer f.Close()
+	_, err = f.WriteString(content)
+	ErrIt(err, "")
 }

@@ -27,7 +27,6 @@ func GenerateFooter() string {
 func parse(input string, cfg agotypes.Config) string {
 	v := reflect.ValueOf(cfg)
 	typeOfS := v.Type()
-
 	for i := 0; i < v.NumField(); i++ {
 		input = strings.ReplaceAll(
 			input,
@@ -38,6 +37,5 @@ func parse(input string, cfg agotypes.Config) string {
 			v.Field(i).Interface().(string),
 		)
 	}
-
 	return input
 }

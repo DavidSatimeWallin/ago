@@ -19,6 +19,5 @@ func GetFolders() agotypes.Hard {
 
 // GetStyleFile returns the full path to css file
 func GetStyleFile() string {
-	cfg := GetCfg()
-	return fmt.Sprintf("%s://%sago.css", cfg.Protocol, cfg.Domain)
+	return fmt.Sprintf("%s://%sago.css", GetCfg().Protocol, GetCfg().Domain)
 }

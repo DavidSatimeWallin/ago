@@ -14,16 +14,16 @@ var cfg agotypes.Config
 
 // InitFolders is for setting up needed folder-structure
 func InitFolders() {
-	createIfNotExists(GetFolders().PostsFolder)
-	createIfNotExists(GetFolders().EntriesFolder)
-	createIfNotExists(GetFolders().SiteFolder)
-	createIfNotExists(GetFolders().TagsFolder)
-}
-
-func createIfNotExists(folder string) {
-	if !util.FolderExists(folder) {
-		os.MkdirAll(folder, os.ModePerm)
-	}
+    for _,folder := range []string{
+        GetFolders().PostsFolder,
+        GetFolders().EntriesFolder,
+        GetFolders().SiteFolder,
+        GetFolders().TagsFolder,
+    } {
+	    if !util.FolderExists(folder) {
+		    os.MkdirAll(folder, os.ModePerm)
+	    }
+    }
 }
 
 // VerifyConfig verifies that we have a config file

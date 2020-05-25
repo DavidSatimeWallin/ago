@@ -16,7 +16,6 @@ import (
 // Create is used to generate a new empty post file
 func Create(formatedDate string, newAbsolutePostPath string) {
 	t := strings.Split(newAbsolutePostPath, "__")
-	title := strings.Title(strings.Replace(strings.Replace(t[1], ".md", "", -1), "-", " ", -1))
 	if util.FileExists(newAbsolutePostPath) {
 		fmt.Println("cannot create new post file.", newAbsolutePostPath, "already exists")
 		os.Exit(1)
@@ -25,9 +24,9 @@ func Create(formatedDate string, newAbsolutePostPath string) {
 	defer f.Close()
 	util.ErrIt(err, "error creating a new post file")
 	for _, v := range []string{
-		title,
+		strings.Title(strings.Replace(strings.Replace(t[1], ".md", "", -1), "-", " ", -1)),
 		fmt.Sprintf("Published %s", formatedDate),
-		"Keywords: page, title, post",
+		"Tags: page, title, post",
 		";;;;;;;",
 		"This is the page header",
 		"=======================",
@@ -75,16 +74,13 @@ func GetFiles() []os.FileInfo {
 }
 
 // GetExcerpt returns the first 100 characters of a blog post
-func GetExcerpt(file string) string {
-	if !util.FileExists(file) {
-		return ""
-	}
-	fileContentSlice := strings.Split(ReadMDFile(file), ";;;;;;;")
-	content := stripmd.Strip(fileContentSlice[1])
-
+func GetExcerpt(file string) (content string) {
+	if util.FileExists(file) {
+	content = stripmd.Strip(strings.Split(ReadMDFile(file), ";;;;;;;")[1])
 	if len(content) > 200 {
 		content = fmt.Sprintf("%s...", content[0:200])
 	}
-
-	return strings.Replace(content, "\n", " ", -1)
+	strings.Replace(content, "\n", " ", -1)
+	}
+	return
 }

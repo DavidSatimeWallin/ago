@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"regexp"
 	"time"
@@ -48,12 +49,15 @@ func main() {
 		os.Exit(0)
 	}
 	if *helpFlag {
-		fmt.Println("~~~~~")
-		fmt.Println("this is Ago Blog, a lightweight tool to generate static html blogs.")
-		fmt.Println("use -init in a new folder to create a new blog")
-		fmt.Println("use -post to create a new blog post template to edit")
-		fmt.Println("use -help to show this section")
-		fmt.Println("~~~~~")
+		c := exec.Command("clear")
+		c.Stdout = os.Stdout
+		c.Run()
+		fmt.Println("\nThis is Ago Blog, a lightweight tool to generate static html blogs.")
+		fmt.Printf("\n")
+		fmt.Println("\tuse -init in a new folder to create a new blog")
+		fmt.Println("\tuse -post to create a new blog post template to edit")
+		fmt.Println("\tuse -help to show this section")
+		fmt.Printf("\n\n")
 		os.Exit(0)
 	}
 }

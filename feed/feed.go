@@ -2,7 +2,6 @@ package feed
 
 import (
 	"fmt"
-	"os"
 	"path/filepath"
 	"strings"
 	"time"
@@ -51,14 +50,6 @@ func GenerateFeeds() {
 
 func createFeedFile(content string, name string) {
 	outputFile := filepath.Join(config.GetFolders().SiteFolder, name)
-	if util.FileExists(outputFile) {
-		err := os.Remove(outputFile)
-		util.ErrIt(err, "")
-	}
-	f, err := os.Create(outputFile)
-	util.ErrIt(err, "")
-	defer f.Close()
-
-	_, err = f.WriteString(content)
-	util.ErrIt(err, "")
+	util.DelFileIfExists(outputFile)
+	util.GenerateFile(outputFile, content)
 }
