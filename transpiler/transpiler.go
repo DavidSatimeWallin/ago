@@ -13,9 +13,9 @@ import (
 	"github.com/dvwallin/ago/tmpl"
 	"github.com/dvwallin/ago/util"
 	"github.com/microcosm-cc/bluemonday"
+	"github.com/russross/blackfriday/v2"
 	"github.com/tdewolff/minify"
 	"github.com/tdewolff/minify/html"
-	"gopkg.in/russross/blackfriday.v2"
 )
 
 // Run - lets execute some transpiltaion shall we?
@@ -96,7 +96,7 @@ func writeSingleEntry(file os.FileInfo) {
 	headerSlice[2] = linkTags(headerSlice[2])
 	m := minify.New()
 	m.AddFunc("text/html", html.Minify)
-	content,err := m.String("text/html", string(bluemonday.UGCPolicy().SanitizeBytes(unsafe)))
+	content, err := m.String("text/html", string(bluemonday.UGCPolicy().SanitizeBytes(unsafe)))
 	util.ErrIt(err, "")
 	fileContent := fmt.Sprintf(
 		"%s%s%s%s%s",
