@@ -94,11 +94,15 @@ func writeSingleEntry(file os.FileInfo) {
 	unsafe := blackfriday.Run([]byte(fileContentSlice[1]))
 	headerSlice := strings.Split(fileContentSlice[0], "\n")
 	headerSlice[2] = linkTags(headerSlice[2])
+	m := minify.New()
+	m.AddFunc("text/html", html.Minify)
+	content,err := m.String("text/html", string(bluemonday.UGCPolicy().SanitizeBytes(unsafe)))
+	util.ErrIt(err, "")
 	fileContent := fmt.Sprintf(
 		"%s%s%s%s%s",
 		layout.GenerateHeader(),
 		fmt.Sprintf("<small>%s</small><hr />", headerSlice[1]),
-		bluemonday.UGCPolicy().SanitizeBytes(unsafe),
+		content,
 		fmt.Sprintf("<hr /><p>Written by %s ( %s )</p><p>%s</p>", cfg.Author, strings.Replace(cfg.Email, "@", "[_AT_]", -1), headerSlice[2]),
 		layout.GenerateFooter(),
 	)
