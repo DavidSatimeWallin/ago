@@ -22,9 +22,8 @@ import (
 func Run() {
 	m := minify.New()
 	m.AddFunc("text/html", html.Minify)
-	parsedHeader := layout.GenerateHeader()
+	parsedHeader := applyStyle(layout.GenerateHeader())
 	indexfile := filepath.Join(config.GetFolders().SiteFolder, "index.html")
-	util.GenerateFile(filepath.Join(config.GetFolders().SiteFolder, "ago.css"), tmpl.Style)
 	s, err := m.String("text/html", fmt.Sprintf("%s%s%s", parsedHeader, posts(10), tmpl.Footer))
 	util.ErrIt(err, "")
 	util.DelFileIfExists(indexfile)
@@ -40,10 +39,14 @@ func Run() {
 	feed.GenerateFeeds()
 }
 
+func applyStyle(input string) string {
+	return strings.Replace(input, "%%STYLE%%", tmpl.Style, -1)
+}
+
 func createAllEntriesPage() {
 	m := minify.New()
 	m.AddFunc("text/html", html.Minify)
-	parsedHeader := layout.GenerateHeader()
+	parsedHeader := applyStyle(layout.GenerateHeader())
 	allEntriesFile := filepath.Join(config.GetFolders().SiteFolder, "all_entries.html")
 	body := posts(-1)
 	s, err := m.String("text/html", fmt.Sprintf("%s%s%s", parsedHeader, body, tmpl.Footer))
@@ -100,7 +103,7 @@ func writeSingleEntry(file os.FileInfo) {
 	util.ErrIt(err, "")
 	fileContent := fmt.Sprintf(
 		"%s%s%s%s%s",
-		layout.GenerateHeader(),
+		applyStyle(layout.GenerateHeader()),
 		fmt.Sprintf("<small>%s</small><hr />", headerSlice[1]),
 		content,
 		fmt.Sprintf("<hr /><p>Written by %s ( %s )</p><p>%s</p>", cfg.Author, strings.Replace(cfg.Email, "@", "[_AT_]", -1), headerSlice[2]),
@@ -132,7 +135,7 @@ func writeTagFiles(tags map[string][]string) {
 		unsafe := blackfriday.Run([]byte(fmt.Sprintf("<ul>%s</ul>", strings.Join(posts, ""))))
 		fileContent := fmt.Sprintf(
 			"%s%s%s",
-			layout.GenerateHeader(),
+			applyStyle(layout.GenerateHeader()),
 			bluemonday.UGCPolicy().SanitizeBytes(unsafe),
 			layout.GenerateFooter(),
 		)
