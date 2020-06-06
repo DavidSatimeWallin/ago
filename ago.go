@@ -4,7 +4,6 @@ import (
 	"flag"
 	"fmt"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"regexp"
 	"time"
@@ -20,10 +19,21 @@ var (
 	transpileFlag = flag.Bool("transpile", false, "transpiles the markdown files into html")
 	postFlag      = flag.String("post", "", "used to create a new post")
 	helpFlag      = flag.Bool("help", false, "show help section")
+	versionFlag   = flag.Bool("version", false, "shows current version")
+
+	GitCommit string
+	GitState  string
+	Version   string
 )
 
 func init() {
 	flag.Parse()
+
+	if *versionFlag {
+		fmt.Printf("Version: ago%s %s %s\n", Version, GitCommit, GitState)
+		os.Exit(0)
+	}
+
 	config.VerifyConfig(initFlag)
 	config.InitFolders()
 }
@@ -49,10 +59,8 @@ func main() {
 		os.Exit(0)
 	}
 	if *helpFlag {
-		c := exec.Command("clear")
-		c.Stdout = os.Stdout
-		c.Run()
 		fmt.Println("\nThis is Ago Blog, a lightweight tool to generate static html blogs.")
+		fmt.Printf("Version: ago%s %s %s\n", Version, GitCommit, GitState)
 		fmt.Printf("\n")
 		fmt.Println("\tuse -init in a new folder to create a new blog")
 		fmt.Println("\tuse -post to create a new blog post template to edit")
