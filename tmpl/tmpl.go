@@ -1,9 +1,0 @@
-package tmpl
-
-// Header contains html code and placeholder tags
-const Header = `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>[[TITLE]]</title><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="[[DESCRIPTION]]"><meta name="keywords" content="[[TAGS]]"><style>%%STYLE%%</style><link rel="alternate" type="application/rss+xml" title="RSS Feed for [[DOMAIN]]" href="[[PROTOCOL]]://[[DOMAIN]]/ago.rss" /><link rel="alternate" type="application/atom+xml" title="Atom Feed for [[DOMAIN]]" href="[[PROTOCOL]]://[[DOMAIN]]/ago.atom" /></head><body><header><div class="title"><h2><a href="[[PROTOCOL]]://[[DOMAIN]]">[[TITLE]]</a></h2><p><em>[[INTRO]]</em></p><hr /><nav><ul><li><a href="[[PROTOCOL]]://[[DOMAIN]]/all_entries.html">View all entries</a></li><li><a href="[[PROTOCOL]]://[[DOMAIN]]/ago.atom">Atom feed</a></li><li><a href="[[PROTOCOL]]://[[DOMAIN]]/ago.rss">RSS feed</a></li></ul></nav><hr /></div></header><div class="story-container">`
-
-// Footer contains the ending of the html
-const Footer = `</div><footer>generated with the <a href="https://ago.ofnir.xyz">ago blog</a> script. source code located at <a href="https://github.com/dvwallin/ago">GitHub</a>.</footer></body></html>`
-
-const Style = `h1{font-size:45px}h2{font-size:30px}p{font-size:16px}ul{list-style:none}ul li{display:inline;margin:15px;}ul li a{padding:5px}a{text-decoration:none;color:#0074D9}a:hover{text-decoration:underline dotted}hr{width:500px;border:0;height:0;border-top:1px solid rgba(0,0,0,0.1);border-bottom:1px solid rgba(255,255,255,0.3)}.title{text-align:center;line-height:30px;height:100%;max-width:600px;margin:0 auto}.story-container{max-width:600px;margin:50px auto;padding:50px;-moz-box-shadow:rgba(0,0,0,0.1) 0 10px 30px;-webkit-box-shadow:rgba(0,0,0,0.1) 0 10px 30px;box-shadow:rgba(0,0,0,0.1) 0 10px 30px}footer{max-width:600px;margin:0 auto;padding:5px}`

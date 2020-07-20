@@ -10,7 +10,6 @@ import (
 	"github.com/dvwallin/ago/feed"
 	"github.com/dvwallin/ago/layout"
 	"github.com/dvwallin/ago/post"
-	"github.com/dvwallin/ago/tmpl"
 	"github.com/dvwallin/ago/util"
 	"github.com/microcosm-cc/bluemonday"
 	"github.com/russross/blackfriday/v2"
@@ -24,14 +23,13 @@ func Run() {
 	m.AddFunc("text/html", html.Minify)
 	parsedHeader := applyStyle(layout.GenerateHeader())
 	indexfile := filepath.Join(config.GetFolders().SiteFolder, "index.html")
-	s, err := m.String("text/html", fmt.Sprintf("%s%s%s", parsedHeader, posts(10), tmpl.Footer))
+	s, err := m.String("text/html", fmt.Sprintf("%s%s%s", parsedHeader, posts(10), layout.Footer))
 	util.ErrIt(err, "")
 	util.DelFileIfExists(indexfile)
 	util.GenerateFile(indexfile, s)
 	createAllEntriesPage()
-	files := post.GetFiles()
 	tags := make(map[string][]string)
-	for _, file := range files {
+	for _, file := range post.GetFiles() {
 		writeSingleEntry(file)
 		tags = buildTagIndex(tags, file)
 	}
@@ -40,7 +38,8 @@ func Run() {
 }
 
 func applyStyle(input string) string {
-	return strings.Replace(input, "%%STYLE%%", tmpl.Style, -1)
+
+	return strings.Replace(input, "%%STYLE%%", `h1{font-size:45px}h2{font-size:30px}p{font-size:16px}ul{list-style:none}ul li{display:inline;margin:15px;}ul li a{padding:5px}a{text-decoration:none;color:#0074D9}a:hover{text-decoration:underline dotted}hr{width:500px;border:0;height:0;border-top:1px solid rgba(0,0,0,0.1);border-bottom:1px solid rgba(255,255,255,0.3)}.title{text-align:center;line-height:30px;height:100%;max-width:600px;margin:0 auto}.story-container{max-width:600px;margin:50px auto;padding:50px;-moz-box-shadow:rgba(0,0,0,0.1) 0 10px 30px;-webkit-box-shadow:rgba(0,0,0,0.1) 0 10px 30px;box-shadow:rgba(0,0,0,0.1) 0 10px 30px}footer{max-width:600px;margin:0 auto;padding:5px}`, -1)
 }
 
 func createAllEntriesPage() {
@@ -49,7 +48,7 @@ func createAllEntriesPage() {
 	parsedHeader := applyStyle(layout.GenerateHeader())
 	allEntriesFile := filepath.Join(config.GetFolders().SiteFolder, "all_entries.html")
 	body := posts(-1)
-	s, err := m.String("text/html", fmt.Sprintf("%s%s%s", parsedHeader, body, tmpl.Footer))
+	s, err := m.String("text/html", fmt.Sprintf("%s%s%s", parsedHeader, body, layout.Footer))
 	util.ErrIt(err, "")
 	util.DelFileIfExists(allEntriesFile)
 	util.GenerateFile(allEntriesFile, s)

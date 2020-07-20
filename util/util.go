@@ -6,39 +6,24 @@ import (
 	"os/exec"
 )
 
-// FileExists returns true of a file exists and is not a dir
-func FileExists(filename string) bool {
-	info, err := os.Stat(filename)
-	if os.IsNotExist(err) {
-		return false
-	}
-	return !info.IsDir()
-}
-
-// FolderExists returns true if the folder exists and is not a file
-func FolderExists(foldername string) bool {
-	info, err := os.Stat(foldername)
-	if os.IsNotExist(err) {
-		return false
-	}
-	return info.IsDir()
+// Exists returns true if a file or folder exists
+func Exists(name string) bool {
+	_, err := os.Stat(name)
+	return !os.IsNotExist(err)
 }
 
 func DelFileIfExists(file string) {
-	if FileExists(file) {
+	if Exists(file) {
 		err := os.Remove(file)
 		ErrIt(err, "")
 	}
 }
 
-// DefaultEditor will be vim cause that's what real adults use
-const DefaultEditor = "vim"
-
 // OpenFileInEditor opens filename in a text editor.
 func OpenFileInEditor(filename string) error {
 	editor := os.Getenv("EDITOR")
 	if editor == "" {
-		editor = DefaultEditor
+		editor = "vim"
 	}
 	executable, err := exec.LookPath(editor)
 	ErrIt(err, "")
@@ -60,6 +45,7 @@ func ErrIt(err error, msg string) {
 func GenerateFile(file string, content string) {
 	DelFileIfExists(file)
 	f, err := os.Create(file)
+	ErrIt(err, "")
 	defer f.Close()
 	_, err = f.WriteString(content)
 	ErrIt(err, "")

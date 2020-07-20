@@ -5,26 +5,30 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/dvwallin/ago/agotypes"
 	"github.com/dvwallin/ago/config"
-	"github.com/dvwallin/ago/tmpl"
 )
+
+// Header contains html code and placeholder tags
+const Header = `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>[[TITLE]]</title><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="[[DESCRIPTION]]"><meta name="keywords" content="[[TAGS]]"><style>%%STYLE%%</style><link rel="alternate" type="application/rss+xml" title="RSS Feed for [[DOMAIN]]" href="[[PROTOCOL]]://[[DOMAIN]]/ago.rss" /><link rel="alternate" type="application/atom+xml" title="Atom Feed for [[DOMAIN]]" href="[[PROTOCOL]]://[[DOMAIN]]/ago.atom" /></head><body><header><div class="title"><h2><a href="[[PROTOCOL]]://[[DOMAIN]]">[[TITLE]]</a></h2><p><em>[[INTRO]]</em></p><hr /><nav><ul><li><a href="[[PROTOCOL]]://[[DOMAIN]]/all_entries.html">View all entries</a></li><li><a href="[[PROTOCOL]]://[[DOMAIN]]/ago.atom">Atom feed</a></li><li><a href="[[PROTOCOL]]://[[DOMAIN]]/ago.rss">RSS feed</a></li></ul></nav><hr /></div></header><div class="story-container">`
+
+// Footer contains the ending of the html
+const Footer = `</div><footer>generated with the <a href="https://ago.ofnir.xyz">ago blog</a> script. source code located at <a href="https://github.com/dvwallin/ago">GitHub</a>.</footer></body></html>`
 
 // GenerateHeader gives back the parsed header
 func GenerateHeader() string {
 	cfg := config.GetCfg()
-	output := parse(tmpl.Header, cfg)
+	output := parse(Header, cfg)
 	return output
 }
 
 // GenerateFooter gives back the parsed header
 func GenerateFooter() string {
 	cfg := config.GetCfg()
-	output := parse(tmpl.Footer, cfg)
+	output := parse(Footer, cfg)
 	return output
 }
 
-func parse(input string, cfg agotypes.Config) string {
+func parse(input string, cfg config.Config) string {
 	v := reflect.ValueOf(cfg)
 	typeOfS := v.Type()
 	for i := 0; i < v.NumField(); i++ {

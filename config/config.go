@@ -5,25 +5,37 @@ import (
 	"io/ioutil"
 	"os"
 
-	"github.com/dvwallin/ago/agotypes"
 	"github.com/dvwallin/ago/util"
 	"github.com/kkyr/fig"
 )
 
-var cfg agotypes.Config
+// Config contains everything needed to run the blog
+type Config struct {
+	Domain      string `fig:"domain" default:"ago.ofnir.xyz"`
+	Protocol    string `fig:"protocol" default:"https"`
+	Author      string `fig:"author" default:"Joane Doe"`
+	Email       string `fig:"email" default:"joane.doe@ago.ofnir.xyz"`
+	Title       string `fig:"title" default:"an Ago Blog!"`
+	Description string `fig:"description" default:"This is an awesome Ago Blog!"`
+	Tags        string `fig:"tags" default:"ago,blog,awesome"`
+	Intro       string `fig:"intro" default:"You should have a small intro here to describe a little bit about yourself and the purpose of the blog"`
+}
+
+var cfg Config
 
 // InitFolders is for setting up needed folder-structure
 func InitFolders() {
-    for _,folder := range []string{
-        GetFolders().PostsFolder,
-        GetFolders().EntriesFolder,
-        GetFolders().SiteFolder,
-        GetFolders().TagsFolder,
-    } {
-	    if !util.FolderExists(folder) {
-		    os.MkdirAll(folder, os.ModePerm)
-	    }
-    }
+	for _, folder := range []string{
+		GetFolders().PostsFolder,
+		GetFolders().EntriesFolder,
+		GetFolders().SiteFolder,
+		GetFolders().TagsFolder,
+	} {
+		if !util.Exists(folder) {
+			err := os.MkdirAll(folder, os.ModePerm)
+			util.ErrIt(err, fmt.Sprintf("could not create %s", folder))
+		}
+	}
 }
 
 // VerifyConfig verifies that we have a config file
@@ -31,7 +43,7 @@ func VerifyConfig(initFlag *bool) {
 	err := fig.Load(&cfg)
 	if err != nil {
 		if *initFlag {
-			if !util.FileExists("config.yaml") {
+			if !util.Exists("config.yaml") {
 				var defaultConfig string = `domain: "ago.ofnir.xyz"
 protocol: "https"
 author: "Joane Doe"
@@ -55,7 +67,7 @@ intro: "You should have a small intro here to describe a little bit about yourse
 }
 
 // GetCfg gives us the config values
-func GetCfg() agotypes.Config {
+func GetCfg() Config {
 	err := fig.Load(&cfg)
 	util.ErrIt(err, "could not load config")
 	return cfg

@@ -16,7 +16,7 @@ import (
 // Create is used to generate a new empty post file
 func Create(formatedDate string, newAbsolutePostPath string) {
 	t := strings.Split(newAbsolutePostPath, "__")
-	if util.FileExists(newAbsolutePostPath) {
+	if util.Exists(newAbsolutePostPath) {
 		fmt.Println("cannot create new post file.", newAbsolutePostPath, "already exists")
 		os.Exit(1)
 	}
@@ -75,12 +75,12 @@ func GetFiles() []os.FileInfo {
 
 // GetExcerpt returns the first 100 characters of a blog post
 func GetExcerpt(file string) (content string) {
-	if util.FileExists(file) {
-	content = stripmd.Strip(strings.Split(ReadMDFile(file), ";;;;;;;")[1])
-	if len(content) > 200 {
-		content = fmt.Sprintf("%s...", content[0:200])
-	}
-	strings.Replace(content, "\n", " ", -1)
+	if util.Exists(file) {
+		content = stripmd.Strip(strings.Split(ReadMDFile(file), ";;;;;;;")[1])
+		if len(content) > 200 {
+			content = fmt.Sprintf("%s...", content[0:200])
+		}
+		strings.Replace(content, "\n", " ", -1)
 	}
 	return
 }
