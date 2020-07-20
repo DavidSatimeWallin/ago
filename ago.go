@@ -64,6 +64,7 @@ func main() {
 		fmt.Printf("\n")
 		fmt.Println("\tuse -init in a new folder to create a new blog")
 		fmt.Println("\tuse -post to create a new blog post template to edit")
+		fmt.Println("\tuse -transpile to generate the static site from the posts")
 		fmt.Println("\tuse -help to show this section")
 		fmt.Printf("\n\n")
 		os.Exit(0)
