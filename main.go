@@ -42,29 +42,9 @@ var (
 	GitCommit, GitState, Version string
 )
 
-func init() {
+func main() {
 	flag.Parse()
 
-	verifyConfig(initFlag)
-	initFolders()
-
-	err := fig.Load(&cfg)
-	errIt(err, "could not load config")
-}
-
-func main() {
-	if len(*postFlag) > 3 {
-		if postnameIsValidFormat := regexp.MustCompile(`^[a-zA-Z0-9-.]+$`).MatchString; !postnameIsValidFormat(*postFlag) {
-			fmt.Println("post names can only contain a-zA-Z0-9 . (dot) and -")
-			os.Exit(1)
-		}
-		create(*postFlag)
-		os.Exit(0)
-	}
-	if *transpileFlag {
-		transpile()
-		os.Exit(0)
-	}
 	if *helpFlag {
 		fmt.Printf("\nVersion: ago%s %s %s\n", Version, GitCommit, GitState)
 		fmt.Println(`
@@ -76,6 +56,24 @@ This is Ago Blog, a lightweight tool to generate static html blogs.
 	ago -help to show this section
 
 		`)
+		os.Exit(0)
+	}
+
+	verifyConfig(initFlag)
+	initFolders()
+
+	err := fig.Load(&cfg)
+	errIt(err, "could not load config")
+	if len(*postFlag) > 3 {
+		if postnameIsValidFormat := regexp.MustCompile(`^[a-zA-Z0-9-.]+$`).MatchString; !postnameIsValidFormat(*postFlag) {
+			fmt.Println("post names can only contain a-zA-Z0-9 . (dot) and -")
+			os.Exit(1)
+		}
+		create(*postFlag)
+		os.Exit(0)
+	}
+	if *transpileFlag {
+		transpile()
 		os.Exit(0)
 	}
 }
