@@ -1,4 +1,4 @@
-package feed
+package main
 
 import (
 	"fmt"
@@ -6,15 +6,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/dvwallin/ago/config"
-	"github.com/dvwallin/ago/post"
-	"github.com/dvwallin/ago/util"
 	"github.com/gorilla/feeds"
 )
 
-// GenerateFeeds are the main function to initiate the generation of RSS and Atom
-func GenerateFeeds() {
-	cfg := config.GetCfg()
+func generateFeeds() {
+	cfg := getCfg()
 	fullURL := fmt.Sprintf("%s://%s/", cfg.Protocol, cfg.Domain)
 	now := time.Now()
 	feed := &feeds.Feed{
@@ -25,31 +21,31 @@ func GenerateFeeds() {
 		Created:     now,
 	}
 
-	files := post.GetFiles()
+	files := getFiles()
 	for _, file := range files {
-		filename := filepath.Join(config.GetFolders().PostsFolder, file.Name())
-		fileContentSlice := strings.Split(post.ReadMDFile(filename), ";;;;;;;")
+		filename := filepath.Join(getFolders().PostsFolder, file.Name())
+		fileContentSlice := strings.Split(readMDFile(filename), ";;;;;;;")
 		headerSlice := strings.Split(fileContentSlice[0], "\n")
 		feed.Items = append(feed.Items, &feeds.Item{
 			Title:       headerSlice[0],
 			Link:        &feeds.Link{Href: fmt.Sprintf("%sentries/%s", fullURL, strings.Replace(file.Name(), ".md", ".html", -1))},
-			Description: post.GetExcerpt(filename),
+			Description: getExcerpt(filename),
 			Author:      &feeds.Author{Name: cfg.Author, Email: cfg.Email},
 			Created:     now,
 		})
 	}
 
 	atom, err := feed.ToAtom()
-	util.ErrIt(err, "")
+	errIt(err, "")
 	createFeedFile(atom, "ago.atom")
 
 	rss, err := feed.ToRss()
-	util.ErrIt(err, "")
+	errIt(err, "")
 	createFeedFile(rss, "ago.rss")
 }
 
 func createFeedFile(content string, name string) {
-	outputFile := filepath.Join(config.GetFolders().SiteFolder, name)
-	util.DelFileIfExists(outputFile)
-	util.GenerateFile(outputFile, content)
+	outputFile := filepath.Join(getFolders().SiteFolder, name)
+	delFileIfExists(outputFile)
+	createFile(outputFile, content)
 }

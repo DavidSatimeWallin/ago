@@ -1,4 +1,4 @@
-package transpiler
+package main
 
 import (
 	"fmt"
@@ -6,35 +6,29 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/dvwallin/ago/config"
-	"github.com/dvwallin/ago/feed"
-	"github.com/dvwallin/ago/layout"
-	"github.com/dvwallin/ago/post"
-	"github.com/dvwallin/ago/util"
 	"github.com/microcosm-cc/bluemonday"
 	"github.com/russross/blackfriday/v2"
 	"github.com/tdewolff/minify"
 	"github.com/tdewolff/minify/html"
 )
 
-// Run - lets execute some transpiltaion shall we?
-func Run() {
+func transpile() {
 	m := minify.New()
 	m.AddFunc("text/html", html.Minify)
-	parsedHeader := applyStyle(layout.GenerateHeader())
-	indexfile := filepath.Join(config.GetFolders().SiteFolder, "index.html")
-	s, err := m.String("text/html", fmt.Sprintf("%s%s%s", parsedHeader, posts(10), layout.Footer))
-	util.ErrIt(err, "")
-	util.DelFileIfExists(indexfile)
-	util.GenerateFile(indexfile, s)
+	parsedHeader := applyStyle(generateHeader())
+	indexfile := filepath.Join(getFolders().SiteFolder, "index.html")
+	s, err := m.String("text/html", fmt.Sprintf("%s%s%s", parsedHeader, posts(10), footer))
+	errIt(err, "")
+	delFileIfExists(indexfile)
+	createFile(indexfile, s)
 	createAllEntriesPage()
 	tags := make(map[string][]string)
-	for _, file := range post.GetFiles() {
+	for _, file := range getFiles() {
 		writeSingleEntry(file)
 		tags = buildTagIndex(tags, file)
 	}
 	writeTagFiles(tags)
-	feed.GenerateFeeds()
+	generateFeeds()
 }
 
 func applyStyle(input string) string {
@@ -45,20 +39,18 @@ func applyStyle(input string) string {
 func createAllEntriesPage() {
 	m := minify.New()
 	m.AddFunc("text/html", html.Minify)
-	parsedHeader := applyStyle(layout.GenerateHeader())
-	allEntriesFile := filepath.Join(config.GetFolders().SiteFolder, "all_entries.html")
-	body := posts(-1)
-	s, err := m.String("text/html", fmt.Sprintf("%s%s%s", parsedHeader, body, layout.Footer))
-	util.ErrIt(err, "")
-	util.DelFileIfExists(allEntriesFile)
-	util.GenerateFile(allEntriesFile, s)
+	allEntriesFile := filepath.Join(getFolders().SiteFolder, "all_entries.html")
+	s, err := m.String("text/html", fmt.Sprintf("%s%s%s", applyStyle(generateHeader()), posts(-1), footer))
+	errIt(err, "")
+	delFileIfExists(allEntriesFile)
+	createFile(allEntriesFile, s)
 
 }
 
 func posts(limit int) (bodyContent string) {
-	cfg := config.GetCfg()
+	cfg := getCfg()
 	fullURL := fmt.Sprintf("%s://%s/", cfg.Protocol, cfg.Domain)
-	files := post.GetFiles()
+	files := getFiles()
 	i := 0
 fileLoop:
 	for _, file := range files {
@@ -72,8 +64,8 @@ fileLoop:
 }
 
 func generator(bodyContent string, file os.FileInfo, fullURL string) string {
-	filename := filepath.Join(config.GetFolders().PostsFolder, file.Name())
-	fileContentSlice := strings.Split(post.ReadMDFile(filename), ";;;;;;;")
+	filename := filepath.Join(getFolders().PostsFolder, file.Name())
+	fileContentSlice := strings.Split(readMDFile(filename), ";;;;;;;")
 	headerSlice := strings.Split(fileContentSlice[0], "\n")
 	headerSlice[2] = linkTags(headerSlice[2])
 	content := fmt.Sprintf(
@@ -82,7 +74,7 @@ func generator(bodyContent string, file os.FileInfo, fullURL string) string {
 		strings.Replace(file.Name(), ".md", "", -1),
 		headerSlice[0],
 		headerSlice[1],
-		post.GetExcerpt(filename),
+		getExcerpt(filename),
 		headerSlice[2],
 	)
 	unsafe := blackfriday.Run([]byte(content))
@@ -90,60 +82,98 @@ func generator(bodyContent string, file os.FileInfo, fullURL string) string {
 }
 
 func writeSingleEntry(file os.FileInfo) {
-	cfg := config.GetCfg()
-	filePath := filepath.Join(config.GetFolders().EntriesFolder, strings.Replace(file.Name(), ".md", ".html", -1))
-	fileContentSlice := strings.Split(post.ReadMDFile(filepath.Join(config.GetFolders().PostsFolder, file.Name())), ";;;;;;;")
+	cfg := getCfg()
+	filePath := filepath.Join(getFolders().EntriesFolder, strings.Replace(file.Name(), ".md", ".html", -1))
+	fileContentSlice := strings.Split(readMDFile(filepath.Join(getFolders().PostsFolder, file.Name())), ";;;;;;;")
 	unsafe := blackfriday.Run([]byte(fileContentSlice[1]))
 	headerSlice := strings.Split(fileContentSlice[0], "\n")
 	headerSlice[2] = linkTags(headerSlice[2])
 	m := minify.New()
 	m.AddFunc("text/html", html.Minify)
 	content, err := m.String("text/html", string(bluemonday.UGCPolicy().SanitizeBytes(unsafe)))
-	util.ErrIt(err, "")
+	errIt(err, "")
 	fileContent := fmt.Sprintf(
 		"%s%s%s%s%s",
-		applyStyle(layout.GenerateHeader()),
+		applyStyle(generateHeader()),
 		fmt.Sprintf("<small>%s</small><hr />", headerSlice[1]),
 		content,
-		fmt.Sprintf("<hr /><p>Written by %s ( %s )</p><p>%s</p>", cfg.Author, strings.Replace(cfg.Email, "@", "[_AT_]", -1), headerSlice[2]),
-		layout.GenerateFooter(),
+		fmt.Sprintf(
+			"<hr /><p>Written by %s ( %s )</p><p>%s</p>",
+			cfg.Author,
+			strings.Replace(
+				cfg.Email,
+				"@",
+				"[_AT_]",
+				-1,
+			),
+			headerSlice[2],
+		),
+		generateFooter(),
 	)
-	util.GenerateFile(filePath, fileContent)
+	createFile(filePath, fileContent)
 }
 
 func buildTagIndex(tags map[string][]string, file os.FileInfo) map[string][]string {
-	cfg := config.GetCfg()
-	fileContentSlice := strings.Split(post.ReadMDFile(filepath.Join(config.GetFolders().PostsFolder, file.Name())), ";;;;;;;")
+	cfg := getCfg()
+	fileContentSlice := strings.Split(
+		readMDFile(
+			filepath.Join(
+				getFolders().PostsFolder,
+				file.Name(),
+			),
+		),
+		";;;;;;;",
+	)
 	headerSlice := strings.Split(fileContentSlice[0], "\n")
 	tagSlice := strings.Split(strings.Replace(strings.Replace(headerSlice[2], " ", "", -1), "Tags:", "", -1), ",")
 	for _, tag := range tagSlice {
-		tags[tag] = append(tags[tag], fmt.Sprintf("%s://%s/entries/%s", cfg.Protocol, cfg.Domain, strings.Replace(file.Name(), ".md", ".html", -1)))
+		tags[tag] = append(
+			tags[tag],
+			fmt.Sprintf(
+				"%s://%s/entries/%s",
+				cfg.Protocol,
+				cfg.Domain,
+				strings.Replace(
+					file.Name(),
+					".md",
+					".html",
+					-1,
+				),
+			),
+		)
 	}
 	return tags
 }
 
 func writeTagFiles(tags map[string][]string) {
 	for tag, posts := range tags {
-		filePath := filepath.Join(config.GetFolders().TagsFolder, fmt.Sprintf("%s.html", tag))
-		util.DelFileIfExists(filePath)
+		file := filepath.Join(getFolders().TagsFolder, fmt.Sprintf("%s.html", tag))
+		delFileIfExists(file)
 		for i, p := range posts {
 			t := strings.Split(p, "__")
 			title := strings.Title(strings.Replace(strings.Replace(t[1], ".html", "", -1), "-", " ", -1))
 			posts[i] = fmt.Sprintf("<li><a href='%s'>%s</a></li>", p, title)
 		}
-		unsafe := blackfriday.Run([]byte(fmt.Sprintf("<ul>%s</ul>", strings.Join(posts, ""))))
-		fileContent := fmt.Sprintf(
+		content := fmt.Sprintf(
 			"%s%s%s",
-			applyStyle(layout.GenerateHeader()),
-			bluemonday.UGCPolicy().SanitizeBytes(unsafe),
-			layout.GenerateFooter(),
+			applyStyle(generateHeader()),
+			bluemonday.UGCPolicy().SanitizeBytes(
+				blackfriday.Run(
+					[]byte(
+						fmt.Sprintf("<ul>%s</ul>",
+							strings.Join(posts, ""),
+						),
+					),
+				),
+			),
+			generateFooter(),
 		)
-		util.GenerateFile(filePath, fileContent)
+		createFile(file, content)
 	}
 }
 
 func linkTags(tagString string) string {
-	cfg := config.GetCfg()
+	cfg := getCfg()
 	fullURL := fmt.Sprintf("%s://%s/", cfg.Protocol, cfg.Domain)
 	tagString = strings.Replace(tagString, " ", "", -1)
 	tagSlice := strings.Split(tagString, ":")

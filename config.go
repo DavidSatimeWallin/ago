@@ -1,16 +1,14 @@
-package config
+package main
 
 import (
 	"fmt"
 	"io/ioutil"
 	"os"
 
-	"github.com/dvwallin/ago/util"
 	"github.com/kkyr/fig"
 )
 
-// Config contains everything needed to run the blog
-type Config struct {
+type config struct {
 	Domain      string `fig:"domain" default:"ago.ofnir.xyz"`
 	Protocol    string `fig:"protocol" default:"https"`
 	Author      string `fig:"author" default:"Joane Doe"`
@@ -21,29 +19,27 @@ type Config struct {
 	Intro       string `fig:"intro" default:"You should have a small intro here to describe a little bit about yourself and the purpose of the blog"`
 }
 
-var cfg Config
+var cfg config
 
-// InitFolders is for setting up needed folder-structure
-func InitFolders() {
+func initFolders() {
 	for _, folder := range []string{
-		GetFolders().PostsFolder,
-		GetFolders().EntriesFolder,
-		GetFolders().SiteFolder,
-		GetFolders().TagsFolder,
+		getFolders().PostsFolder,
+		getFolders().EntriesFolder,
+		getFolders().SiteFolder,
+		getFolders().TagsFolder,
 	} {
-		if !util.Exists(folder) {
+		if !exists(folder) {
 			err := os.MkdirAll(folder, os.ModePerm)
-			util.ErrIt(err, fmt.Sprintf("could not create %s", folder))
+			errIt(err, fmt.Sprintf("could not create %s", folder))
 		}
 	}
 }
 
-// VerifyConfig verifies that we have a config file
-func VerifyConfig(initFlag *bool) {
+func verifyConfig(initFlag *bool) {
 	err := fig.Load(&cfg)
 	if err != nil {
 		if *initFlag {
-			if !util.Exists("config.yaml") {
+			if !exists("config.yaml") {
 				var defaultConfig string = `domain: "ago.ofnir.xyz"
 protocol: "https"
 author: "Joane Doe"
@@ -53,7 +49,7 @@ description: "This is an awesome Ago Blog!"
 tags: "ago,blog,awesome"
 intro: "You should have a small intro here to describe a little bit about yourself and the purpose of the blog"`
 				err := ioutil.WriteFile("config.yaml", []byte(defaultConfig), 0644)
-				util.ErrIt(err, "could not create config.yaml")
+				errIt(err, "could not create config.yaml")
 				fmt.Println("congratulations to your new Ago Blog!")
 			} else {
 				fmt.Println("config.yaml already exists")
@@ -66,9 +62,8 @@ intro: "You should have a small intro here to describe a little bit about yourse
 	}
 }
 
-// GetCfg gives us the config values
-func GetCfg() Config {
+func getCfg() config {
 	err := fig.Load(&cfg)
-	util.ErrIt(err, "could not load config")
+	errIt(err, "could not load config")
 	return cfg
 }
