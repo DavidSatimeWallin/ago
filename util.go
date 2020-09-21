@@ -13,8 +13,7 @@ func exists(name string) bool {
 
 func delFileIfExists(file string) {
 	if exists(file) {
-		err := os.Remove(file)
-		errIt(err, "")
+		errIt(os.Remove(file), "")
 	}
 }
 

@@ -27,7 +27,6 @@ func create(postFlag string) {
 		)
 	)
 
-	t := strings.Split(newPost, "__")
 	if exists(newPost) {
 		fmt.Println("cannot create new post file.", newPost, "already exists")
 		os.Exit(1)
@@ -39,7 +38,7 @@ func create(postFlag string) {
 		strings.Title(
 			strings.Replace(
 				strings.Replace(
-					t[1],
+					strings.Split(newPost, "__")[1],
 					".md",
 					"",
 					-1,
@@ -49,7 +48,7 @@ func create(postFlag string) {
 				-1,
 			),
 		),
-		fmt.Sprintf("Published %s", formatedDate),
+		fmt.Sprintf("published %s", formatedDate),
 		"Tags: page, title, post",
 		";;;;;;;",
 		"This is the page header",

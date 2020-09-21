@@ -10,7 +10,6 @@ import (
 )
 
 func generateFeeds() {
-	cfg := getCfg()
 	fullURL := fmt.Sprintf("%s://%s/", cfg.Protocol, cfg.Domain)
 	now := time.Now()
 	feed := &feeds.Feed{
@@ -21,8 +20,7 @@ func generateFeeds() {
 		Created:     now,
 	}
 
-	files := getFiles()
-	for _, file := range files {
+	for _, file := range getFiles() {
 		filename := filepath.Join(getFolders().PostsFolder, file.Name())
 		fileContentSlice := strings.Split(readMDFile(filename), ";;;;;;;")
 		headerSlice := strings.Split(fileContentSlice[0], "\n")

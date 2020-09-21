@@ -32,8 +32,7 @@ func transpile() {
 }
 
 func applyStyle(input string) string {
-
-	return strings.Replace(input, "%%STYLE%%", `h1{font-size:45px}h2{font-size:30px}p{font-size:16px}ul{list-style:none}ul li{display:inline;margin:15px;}ul li a{padding:5px}a{text-decoration:none;color:#0074D9}a:hover{text-decoration:underline dotted}hr{width:500px;border:0;height:0;border-top:1px solid rgba(0,0,0,0.1);border-bottom:1px solid rgba(255,255,255,0.3)}.title{text-align:center;line-height:30px;height:100%;max-width:600px;margin:0 auto}.story-container{max-width:600px;margin:50px auto;padding:50px;-moz-box-shadow:rgba(0,0,0,0.1) 0 10px 30px;-webkit-box-shadow:rgba(0,0,0,0.1) 0 10px 30px;box-shadow:rgba(0,0,0,0.1) 0 10px 30px}footer{max-width:600px;margin:0 auto;padding:5px}`, -1)
+	return strings.Replace(input, "%%STYLE%%", `h1{font-size:45px}h2{font-size:30px}p{font-size:16px}ul{list-style:none}ul li{display:inline;margin:15px;}ul li a{padding:5px}a{text-decoration:none;color:#0074D9}a:hover{text-decoration:underline dotted}hr{border:0;height:0;border-top:1px solid rgba(0,0,0,0.1);border-bottom:1px solid rgba(255,255,255,0.3)}.title{text-align:center;line-height:30px;height:100%}.story-container{padding:50px;}footer{padding:50px}`, -1)
 }
 
 func createAllEntriesPage() {
@@ -48,7 +47,6 @@ func createAllEntriesPage() {
 }
 
 func posts(limit int) (bodyContent string) {
-	cfg := getCfg()
 	fullURL := fmt.Sprintf("%s://%s/", cfg.Protocol, cfg.Domain)
 	files := getFiles()
 	i := 0
@@ -82,7 +80,6 @@ func generator(bodyContent string, file os.FileInfo, fullURL string) string {
 }
 
 func writeSingleEntry(file os.FileInfo) {
-	cfg := getCfg()
 	filePath := filepath.Join(getFolders().EntriesFolder, strings.Replace(file.Name(), ".md", ".html", -1))
 	fileContentSlice := strings.Split(readMDFile(filepath.Join(getFolders().PostsFolder, file.Name())), ";;;;;;;")
 	unsafe := blackfriday.Run([]byte(fileContentSlice[1]))
@@ -114,7 +111,6 @@ func writeSingleEntry(file os.FileInfo) {
 }
 
 func buildTagIndex(tags map[string][]string, file os.FileInfo) map[string][]string {
-	cfg := getCfg()
 	fileContentSlice := strings.Split(
 		readMDFile(
 			filepath.Join(
@@ -173,7 +169,6 @@ func writeTagFiles(tags map[string][]string) {
 }
 
 func linkTags(tagString string) string {
-	cfg := getCfg()
 	fullURL := fmt.Sprintf("%s://%s/", cfg.Protocol, cfg.Domain)
 	tagString = strings.Replace(tagString, " ", "", -1)
 	tagSlice := strings.Split(tagString, ":")

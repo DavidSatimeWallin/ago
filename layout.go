@@ -11,13 +11,11 @@ const header = `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><titl
 const footer = `</div><footer>generated with the <a href="https://ago.ofnir.xyz">ago blog</a> script. source code located at <a href="https://github.com/dvwallin/ago">GitHub</a>.</footer></body></html>`
 
 func generateHeader() string {
-	cfg := getCfg()
 	output := parse(header, cfg)
 	return output
 }
 
 func generateFooter() string {
-	cfg := getCfg()
 	output := parse(footer, cfg)
 	return output
 }
