@@ -1,8 +1,0 @@
-domain: "localhost:8888"
-protocol: "http"
-author: "Joane Doe"
-email: "joane.doe@ago.ofnir.xyz"
-title: "an Ago Blog!"
-description: "This is an awesome Ago Blog!"
-tags: "ago,blog,awesome"
-intro: "You should have a small intro here to describe a little bit about yourself and the purpose of the blog"
