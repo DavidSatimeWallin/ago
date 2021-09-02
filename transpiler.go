@@ -67,12 +67,11 @@ func generator(bodyContent string, file os.FileInfo, fullURL string) string {
 	headerSlice := strings.Split(fileContentSlice[0], "\n")
 	headerSlice[2] = linkTags(headerSlice[2])
 	content := fmt.Sprintf(
-		"<h2><a href='%sentries/%s.html'>%s</a></h2><small>%s</small><p>%s</p><p>%s</p>",
+		"<div><a href='%sentries/%s.html'>%s</a><small>%s</small><p>%s</p></div>",
 		fullURL,
 		strings.Replace(file.Name(), ".md", "", -1),
 		headerSlice[0],
 		headerSlice[1],
-		getExcerpt(filename),
 		headerSlice[2],
 	)
 	unsafe := blackfriday.Run([]byte(content))

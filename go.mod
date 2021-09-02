@@ -3,10 +3,11 @@ module github.com/dvwallin/ago
 go 1.14
 
 require (
+	github.com/ahmetb/govvv v0.3.0 // indirect
 	github.com/gorilla/feeds v1.1.1
 	github.com/imthaghost/goclone v1.1.1 // indirect
 	github.com/kkyr/fig v0.2.0
-	github.com/microcosm-cc/bluemonday v1.0.3
+	github.com/microcosm-cc/bluemonday v1.0.15
 	github.com/russross/blackfriday/v2 v2.0.1
 	github.com/shurcooL/sanitized_anchor_name v1.0.0 // indirect
 	github.com/tdewolff/minify v2.3.6+incompatible
