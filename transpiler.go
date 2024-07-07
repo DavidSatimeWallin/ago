@@ -67,7 +67,7 @@ func generator(bodyContent string, file os.FileInfo, fullURL string) string {
 	headerSlice := strings.Split(fileContentSlice[0], "\n")
 	headerSlice[2] = linkTags(headerSlice[2])
 	content := fmt.Sprintf(
-		"<div><a href='%sentries/%s.html'>%s</a><small>%s</small></div>",
+		"<div><a href='%sentries/%s.html'>%s</a> | <small>%s</small></div>",
 		fullURL,
 		strings.Replace(file.Name(), ".md", "", -1),
 		headerSlice[0],
